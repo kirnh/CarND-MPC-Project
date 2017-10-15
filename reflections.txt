@@ -1,0 +1,74 @@
+CarND - Term2
+P5 - Model Predictive Control
+
+----------------------------------------------------------------------------------------------------
+This text file contains a high level modular description of my implementation an MPC used to drive 
+the udacity simulator car around the test track succesfully with the requirements intact.
+
+----------------------------------------------------------------------------------------------------
+The Model:
+
+A motion model is a set of equations or constraints used to describe the movement of a moving object. 
+In our case, to describe the movement of a car we make use of a simple kinematic model that ignores 
+the forces involved.
+
+The state of the car at any given moment in time is a 4 component vector: x position, y position, 
+heading angle and velocity;
+State: x (x pos), y (y pos), psi (heading angle), v (velocity)
+
+while the actuators or the controls consist of steering input and the accelerator/deccelerator input.
+Control inputs: 𝛿 (steering angle), a(+/- acceleration)
+
+With time, there is a change in the state of the car because of the actuator inputs. The new state of 
+the car is described as a function of its old state, the actuator input values, and the time elapsed 
+between the two states using our motion model. 
+
+In the implementation of this MPC, the below motion model was used:
+
+Let's say, 
+Old state -> x, y, psi, v
+Actuator inputs -> 𝛿, a
+
+New state after time dt -> x_new, y_new, psi_new, v_new
+
+x_new = x + v * cos(psi) * dt  
+y_new = y + v * sin(psi) * dt
+psi_new = psi - v * 𝛿 / Lf * dt 			(Note: The negative value of the second is 
+							because of the sign convention of steering 
+							values in the simulator.)
+v_new = v + a * dt
+
+----------------------------------------------------------------------------------------------------
+Timestep Length and Elapsed Duration (N & dt) tuning and dealing with latency:
+
+To control the car as desired, we need to compare the ideal path we want it to take with a predicted 
+path given a series of inputs. The time T over which this predicted path is calculated using the 
+motion model and the input values is called the prediction horizon. This prediction horizon is a 
+product of two variables, N and dt. 
+
+N is the number of timesteps in the horizon. dt is the time elapsed between actuations. The general 
+guidelines to decide the value of these MPC hyperparameters are that T should be as large as possible, 
+while dt should be as small as possible. These guidelines create tradeoff between computational time 
+and the closeness to the ideal path acheived.
+
+I started tuning N and dt by first setting the simulated latency between actuation commands and 
+actuations to 0.
+
+I set N to 10, dt to 1, the reference velocity to 50 and observed the performance.
+The car moved very slowly and was going out of track at certain points and I figured that the 
+actuations were too sparse, so I started decreasing dt until the car was able to move comfortably 
+around the whole track at a dt value of 0.2!
+
+Then I increased the reference velocity to 100 and checked the performance. The car still comfortable
+completed the track but was now faster and reached a max speed of about 80 mph.
+
+Now I introduced a 100ms latency to simulate the real world scenario. I added this to the model by 
+adding a 100ms to the dt which was 0.2s. Thus the new dt became 0.12s with latency modeled into it. 
+
+The test around the simulator track proved the working of this hyperparamter setting of N=10 and 
+dt=1.2!
+ 
+----------------------------------------------------------------------------------------------------
+											-Kiran Hegde
+
+ 
