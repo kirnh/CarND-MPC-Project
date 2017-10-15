@@ -120,7 +120,7 @@ int main() {
 
 					//calculate cte and epsi error terms
 					double cte = polyeval(coeffs, 0);     
-					double epsi = psi - atan(coeffs[1] + 2 * px * coeffs[2] + 3 * coeffs[3] * pow(px, 2));
+					double epsi = = -atan(coeffs[1]);
 					// double epsi = -atan(coeffs[1]);
 
           double steer_value = j[1]["steering_angle"];
