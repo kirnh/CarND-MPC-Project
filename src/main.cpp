@@ -125,26 +125,24 @@ int main() {
 					double cte = polyeval(coeffs, 0);     
 					double epsi = -atan(coeffs[1]);
 
-          // double steer_value = j[1]["steering_angle"];
-          // double throttle_value = j[1]["throttle"];
-
           // model the latency by predicting the true state of the car which is in the future ahead by latency amount of time
           // before passing it to the MPC 
           double steer_value = j[1]["steering_angle"];
           double a = j[1]["throttle"];
           double latency = 0.1;
           double delta = -steer_value;
+          // velocity in m/s
           v *= 0.44704;
           psi = delta;
-          px = px + v*cos(psi)*latency; 
-          py = py + v*sin(psi)*latency;
-          psi = psi + v*delta*latency/Lf;
+          px = v*cos(psi)*latency; 
+          py = v*sin(psi)*latency;
+          psi = v*delta*latency/Lf;
           epsi = epsi + v*delta*latency/Lf;
           cte = cte + v*sin(epsi)*latency;
           v = v + a*latency;
 
           Eigen::VectorXd state(6);
-          state << 0, 0, 0, v, cte, epsi;
+          state << px, py, psi, v, cte, epsi;
 
           // Calling mpc.Solve here that returns vars 
           auto vars = mpc.Solve(state, coeffs);
