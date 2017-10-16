@@ -128,6 +128,21 @@ int main() {
           // double steer_value = j[1]["steering_angle"];
           // double throttle_value = j[1]["throttle"];
 
+          // model the latency by predicting the true state of the car which is in the future ahead by latency amount of time
+          // before passing it to the MPC 
+          double steer_value = j[1]["steering_angle"];
+          double a = j[1]["throttle"];
+          double latency = 0.1;
+          double delta = -steer_value;
+          v *= 0.44704;
+          psi = delta;
+          px = px + v*cos(psi)*latency; 
+          py = py + v*sin(psi)*latency;
+          psi = psi + v*delta*latency/Lf;
+          epsi = epsi + v*delta*latency/Lf;
+          cte = cte + v*sin(epsi)*latency;
+          v = v + a*latency;
+
           Eigen::VectorXd state(6);
           state << 0, 0, 0, v, cte, epsi;
 
@@ -151,7 +166,7 @@ int main() {
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
-          //FixMe: This seems wrong
+          
           for (int i = 2; i < vars.size(); i++)
           {
           	if(i%2 == 0)
