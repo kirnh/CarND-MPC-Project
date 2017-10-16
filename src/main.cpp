@@ -12,6 +12,9 @@
 // for convenience
 using json = nlohmann::json;
 
+// This is the length from front to CoG that has a similar radius.
+const double Lf = 2.67;
+
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
@@ -120,11 +123,10 @@ int main() {
 
 					//calculate cte and epsi error terms
 					double cte = polyeval(coeffs, 0);     
-					double epsi = = -atan(coeffs[1]);
-					// double epsi = -atan(coeffs[1]);
+					double epsi = -atan(coeffs[1]);
 
-          double steer_value = j[1]["steering_angle"];
-          double throttle_value = j[1]["throttle"];
+          // double steer_value = j[1]["steering_angle"];
+          // double throttle_value = j[1]["throttle"];
 
           Eigen::VectorXd state(6);
           state << 0, 0, 0, v, cte, epsi;
@@ -167,7 +169,7 @@ int main() {
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = vars[0]/(deg2rad(25)*Lf);
+          msgJson["steering_angle"] = -vars[0]/(deg2rad(25)*Lf);
           msgJson["throttle"] = vars[1];
 
           //Display the MPC predicted trajectory 
