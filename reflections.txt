@@ -57,16 +57,33 @@ actuations to 0.
 I set N to 10, dt to 1, the reference velocity to 50 and observed the performance.
 The car moved very slowly and was going out of track at certain points and I figured that the 
 actuations were too sparse, so I started decreasing dt until the car was able to move comfortably 
-around the whole track at a dt value of 0.2!
+around the whole track at a dt value of 0.1!
 
 Then I increased the reference velocity to 100 and checked the performance. The car still comfortable
 completed the track but was now faster and reached a max speed of about 80 mph.
 
-Now I introduced a 100ms latency to simulate the real world scenario. I added this to the model by 
-adding a 100ms to the dt which was 0.2s. Thus the new dt became 0.12s with latency modeled into it. 
+Now I modeled the system to handle a 100ms latency which simulate the real world scenario. This is 
+done by first predicting the state of the car after latency amount of time and then passing this to 
+the MPC. Thus the initial state of the car from the perspective of the MPC solver is now the 
+predicted state of the car in the future (ahead by latency amount of time). 
+
+The new initial state:
+px = v*cos(psi)*latency; 
+py = v*sin(psi)*latency;
+psi = v*delta*latency/Lf;
+epsi = epsi + v*delta*latency/Lf;
+cte = cte + v*sin(epsi)*latency;
+v = v + a*latency;
+
+This solves the issue of having a latency between the actuator commands and the actuations since the 
+controls we get out of MPC will be optimized for the state of the car when the controls will actually 
+be actuated. 
+
+Then I further tuned the dt in MPC until the car stopped going out of track. The final value of dt 
+I arrived at was 0.17
 
 The test around the simulator track proved the working of this hyperparamter setting of N=10 and 
-dt=1.2!
+dt=0.17!
  
 ----------------------------------------------------------------------------------------------------
 											-Kiran Hegde

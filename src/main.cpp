@@ -125,10 +125,11 @@ int main() {
 					double cte = polyeval(coeffs, 0);     
 					double epsi = -atan(coeffs[1]);
 
-          // model the latency by predicting the true state of the car which is in the future ahead by latency amount of time
-          // before passing it to the MPC 
+          // model the latency by predicting the true state of the car which is in the future ahead 
+          // by latency amount of time before passing it to the MPC 
           double steer_value = j[1]["steering_angle"];
           double a = j[1]["throttle"];
+          // latency of 100ms or 0.1s
           double latency = 0.1;
           double delta = -steer_value;
           // velocity in m/s
